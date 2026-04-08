@@ -96,13 +96,14 @@ app.get("/api/messages", (req, res) => {
 });
 
 app.post("/api/messages", (req, res) => {
+    console.log(req.body);
     let text = req.body.text;
     let author = req.body.author;
     if (!text || !author) {
         res.status(400).json({ error: "Text and author are required" });
     } else {
         let newMessage = {
-            id: nextId,
+            "id": nextId,
             "text": text,
             "author": author
         };
