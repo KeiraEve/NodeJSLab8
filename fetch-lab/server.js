@@ -9,16 +9,12 @@ app.use(express.static('public'));
 // Parse JSON request bodies (needed for POST)
 app.use(express.json());
 
+let messages = [
+  { id: 1, text: "Welcome to the message board!", author: "Admin" },
+];
+let nextId = 2;
+
 // ---- Your endpoints go below this line ----
-
-
-
-// ---- Your endpoints go above this line ----
-
-const PORT = process.env.PORT || 8080;
-app.listen(PORT, () => {
-    console.log(`Server is running on port ${PORT}`);
-});
 
 app.get('/hello', (req, res) => {
     res.type('text').send('Hello from the server!');
@@ -96,9 +92,28 @@ app.get("/api/unreliable", (req, res) => {
 });
 
 app.get("/api/messages", (req, res) => {
-
+    res.json(messages);
 });
 
 app.post("/api/messages", (req, res) => {
+    let text = req.body.text;
+    let author = req.body.author;
+    if (!text || !author) {
+        res.status(400).json({ error: "Text and author are required" });
+    } else {
+        let newMessage = {
+            id: nextId,
+            "text": text,
+            "author": author
+        };
+        messages.push(newMessage);
+        res.status(201).json(newMessage);
+    }
+});
 
+// ---- Your endpoints go above this line ----
+
+const PORT = process.env.PORT || 8080;
+app.listen(PORT, () => {
+    console.log(`Server is running on port ${PORT}`);
 });
