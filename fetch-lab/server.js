@@ -108,8 +108,13 @@ app.post("/api/messages", (req, res) => {
             "author": author
         };
         messages.push(newMessage);
+        nextId++;
         res.status(201).json(newMessage);
     }
+});
+
+app.get('/api/headers', (req, res) => {
+  res.json(req.headers);
 });
 
 // ---- Your endpoints go above this line ----

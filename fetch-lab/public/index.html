@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Fetch Lab</title>
+    <!-- IMPORT BOOTSTRAP HERE! -->
+</head>
+
+<body class="bg-light">
+    <main class="container py-4">
+        <h1 class="mb-4">Fetch Lab</h1>
+
+        <section id="hello-section" class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4">1. Hello (text response)</h2>
+                <button id="hello-btn" class="btn btn-primary">
+                    Fetch /hello
+                </button>
+                <div id="hello-result" class="alert alert-secondary mt-3 mb-0" role="alert">
+                    Click the button...
+                </div>
+            </div>
+        </section>
+
+        <section id="time-section" class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4">2. Time </h2>
+                <button id="time-btn" class="btn btn-primary">
+                    Fetch /api/time
+                </button>
+                <div id="time-result" class="alert alert-secondary mt-3 mb-0" role="alert">
+                    Click the button...
+                </div>
+            </div>
+        </section>
+
+        <section id="name-section" class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4">3. Custom Greeting</h2>
+                <input id="name-input" type="text" placeholder="Type your name...">
+                <button id="name-btn" class="btn btn-primary">
+                    Fetch /api/greet/:name
+                </button>
+                <div id="name-result" class="alert alert-secondary mt-3 mb-0" role="alert">
+                    Click the button...
+                </div>
+            </div>
+        </section>
+
+        <section id="slow-section" class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4">4. Slow</h2>
+                <button id="slow-btn" class="btn btn-primary">
+                    Fetch /api/slow
+                </button>
+                <div id="slow-result" class="alert alert-secondary mt-3 mb-0" role="alert">
+                    Click the button...
+                </div>
+            </div>
+        </section>
+
+        <section id="msg-section" class="card mb-4">
+            <div class="card-body">
+                <h2 class="h4">3. Custom Greeting</h2>
+                <form>
+                    <input id="msg-text" type="text" placeholder="Type whatever you want..."> <br>
+                    <input id="msg-author" type="text" placeholder="Type your psuedonym...">
+                    <button id="msg-btn" class="btn btn-primary">
+                        Fetch /api/messages
+                    </button>
+                </form>
+                <div id="msg-result" class="alert alert-secondary mt-3 mb-0" role="alert">
+                    Click the button...
+                </div>
+            </div>
+        </section>
+
+        <!-- You will add more sections below -->
+
+        <script>
+            // Your fetch code goes here
+            function statusCheck(response) {
+                if (response.ok) return response;
+                return response.json()
+                    .then(errData => {
+                        const msg = errData.error
+                            || ('HTTP ' + response.status);
+                        throw new Error(msg);
+                    })
+                    .catch(() => {
+                        throw new Error('HTTP ' + response.status);
+                    });
+            }
+
+            document.getElementById('hello-btn')
+                .addEventListener('click', () => {
+                    fetch('/hello')
+                        .then(statusCheck)
+                        .then(res => res.text())
+                        .then(text => {
+                            document.getElementById('hello-result')
+                                .textContent = text;
+                        })
+                        .catch(error => {
+                            document.getElementById('hello-result')
+                                .textContent = 'Error: '
+                                + error.message;
+                        });
+                });
+
+            // document.getElementById('time-btn')
+            //     .addEventListener('click', () => {
+            //         fetch('/api/time')
+            //             .then(statusCheck)
+            //             .then(res => res.json())
+            //             .then(res => {
+            //                 document.getElementById('time-result').textContent = res.message + ": " + res.currentTime;
+            //             })
+            //             .catch(error => {
+            //                 document.getElementById('time-result')
+            //                     .textContent = 'Error: '
+            //                     + error.message;
+            //             });
+            //     });
+
+            document.getElementById('time-btn')
+                .addEventListener('click', async () => {
+                    try {
+                        const response = await fetch('/api/time');
+                        await statusCheck(response);
+                        const data = await response.json();
+                        document.getElementById('time-result').textContent = data.message + ': ' + data.currentTime;
+                    } catch (error) {
+                        document.getElementById(
+                            'time-result').textContent =
+                            'Error: ' + error.message;
+                    }
+                });
+
+            document.getElementById("name-btn").addEventListener("click", () => {
+                const name = document.getElementById('name-input').value;
+                fetch('/api/greet/' + name)
+                    .then(statusCheck)
+                    .then(res => res.json())
+                    .then(data => {
+                        document.getElementById('name-result').textContent = data.greeting;
+                    })
+                    .catch(error => {
+                        document.getElementById('name-result').textContent = "Error: " + error.message;
+                    });
+            });
+
+            document.getElementById('slow-btn')
+                .addEventListener('click', () => {
+                    const resultDiv = document.getElementById('slow-result');
+                    resultDiv.textContent = 'Loading... please wait';
+                    resultDiv.className = 'alert alert-secondary mt-3';
+
+                    fetch('/api/slow')
+                        .then(statusCheck)
+                        .then(res => res.json())
+                        .then(data => {
+                            resultDiv.textContent = data.message;
+                            resultDiv.className =
+                                'alert alert-success mt-3';
+                        })
+                        .catch(error => {
+                            resultDiv.textContent =
+                                'Error: ' + error.message;
+                            resultDiv.className =
+                                'alert alert-danger mt-3';
+                        });
+                });
+
+            async function postMessage() {
+                const text = document.getElementById('msg-text').value;
+                const author = document.getElementById('msg-author').value;
+                try {
+                    const response = await fetch('/api/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({ text, author })
+                    });
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error);
+                    }
+                    const newMsg = await response.json();
+                    const allMsgs = await fetch('/api/messages')
+                        .then(statusCheck)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('msg-result').textContent = data.greeting;
+                        })
+                        .catch(error => {
+                            document.getElementById('msg-result').textContent = "Error: " + error.message;
+                        });
+                } catch (error) {
+                    document.getElementById('msg-result').textContent = "Error: " + error.message;
+                }
+            }
+
+        </script>
+    </main>
+</body>
+
+</html>
