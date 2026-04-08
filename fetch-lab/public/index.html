@@ -64,13 +64,13 @@
         <section id="msg-section" class="card mb-4">
             <div class="card-body">
                 <h2 class="h4">3. Custom Greeting</h2>
-                <form>
+               
                     <input id="msg-text" type="text" placeholder="Type whatever you want..."> <br>
                     <input id="msg-author" type="text" placeholder="Type your psuedonym...">
                     <button id="msg-btn" class="btn btn-primary">
                         Fetch /api/messages
                     </button>
-                </form>
+                
                 <div id="msg-result" class="alert alert-secondary mt-3 mb-0" role="alert">
                     Click the button...
                 </div>
@@ -173,8 +173,8 @@
                                 'alert alert-danger mt-3';
                         });
                 });
-
-            async function postMessage() {
+            
+            document.getElementById('msg-btn').addEventListener("click", async function postMessage() {
                 const text = document.getElementById('msg-text').value;
                 const author = document.getElementById('msg-author').value;
                 try {
@@ -203,8 +203,7 @@
                 } catch (error) {
                     document.getElementById('msg-result').textContent = "Error: " + error.message;
                 }
-            }
-
+            });
         </script>
     </main>
 </body>
