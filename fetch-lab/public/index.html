@@ -63,12 +63,15 @@
 
         <section id="msg-section" class="card mb-4">
             <div class="card-body">
-                <h2 class="h4">3. Custom Greeting</h2>
+                <h2 class="h4">5. Webhook</h2>
                
                     <input id="msg-text" type="text" placeholder="Type whatever you want..."> <br>
                     <input id="msg-author" type="text" placeholder="Type your psuedonym...">
                     <button id="msg-btn" class="btn btn-primary">
                         Fetch /api/messages
+                    </button>
+                    <button id="webhook-btn" class="btn btn-primary">
+                        Send to Webhook
                     </button>
                 
                 <div id="msg-result" class="alert alert-secondary mt-3 mb-0" role="alert">
@@ -76,6 +79,7 @@
                 </div>
             </div>
         </section>
+        
 
         <!-- You will add more sections below -->
 
@@ -179,6 +183,38 @@
                 const author = document.getElementById('msg-author').value;
                 try {
                     const response = await fetch('/api/messages', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type':
+                                'application/json'
+                        },
+                        body: JSON.stringify({ text, author })
+                    });
+                    if (!response.ok) {
+                        const errData = await response.json();
+                        throw new Error(errData.error);
+                    }
+                    const newMsg = await response.json();
+                    const allMsgs = await fetch('/api/messages')
+                        .then(statusCheck)
+                        .then(res => res.json())
+                        .then(data => {
+                            document.getElementById('msg-result').textContent = data.greeting;
+                        })
+                        .catch(error => {
+                            document.getElementById('msg-result').textContent = "Error: " + error.message;
+                        });
+                } catch (error) {
+                    document.getElementById('msg-result').textContent = "Error: " + error.message;
+                }
+            });
+
+             document.getElementById('webhook-btn').addEventListener("click", async function postWebhook() {
+                const webhookURL = 'https://app.hooklistener.com/w/my-first-endpoint-l5va';
+                const text = document.getElementById('msg-text').value;
+                const author = document.getElementById('msg-author').value;
+                try {
+                    const response = await fetch(webhookURL, {
                         method: 'POST',
                         headers: {
                             'Content-Type':
